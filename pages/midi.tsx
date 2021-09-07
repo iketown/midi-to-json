@@ -76,16 +76,17 @@ const MidiPage: React.FC = ({}) => {
                 <div className=" text-xl ">{track.trackName}</div>
                 <div className="text-gray-500">{noteCount} notes</div>
               </div>
-              <div className="flex justify-center align-middle p-3">
-                <DownloadLink
-                  tagName="button"
-                  label={
-                    <div className="text-white">save {track.trackName}</div>
-                  }
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  exportFile={() => JSON.stringify(track)}
-                  filename={`${track.trackName}.json`}
-                />
+              <div className="flex justify-center align-middle p-4">
+                <div className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                  <DownloadLink
+                    tagName="button"
+                    label={
+                      <div className="text-white">save {track.trackName}</div>
+                    }
+                    exportFile={() => JSON.stringify(track)}
+                    filename={`${track.trackName}.json`}
+                  />
+                </div>
               </div>
               <div>
                 <JTREE data={track} shouldExpandNode={() => false} />
