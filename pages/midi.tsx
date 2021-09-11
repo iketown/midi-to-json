@@ -2,7 +2,12 @@ import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Midi, MidiJSON } from "@tonejs/midi";
 import JTREE from "react-json-tree";
-import { sortNoteTimes, TimeObj } from "../utils/parseMidi";
+import {
+  sortNoteTimes,
+  TimeObj,
+  OrderedTimeObj,
+  orderNotes,
+} from "../utils/parseMidi";
 import DownloadLink from "react-download-link";
 import ChangeOctaves from "../components/ChangeOctaves";
 
@@ -11,6 +16,7 @@ const MidiPage: React.FC = ({}) => {
   const [transposeOct, setTransposeOct] = useState(0);
   const [tracksJson, setTracksJson] = useState<any>();
   const [allTracks, setAllTracks] = useState<TimeObj[]>();
+  const [orderedTracks, setOrderedTracks] = useState<OrderedTimeObj[]>();
   const [jsxObj, setJsxObj] = useState<any>();
 
   const onDrop = useCallback(
@@ -30,6 +36,9 @@ const MidiPage: React.FC = ({}) => {
             const _allTracks = midi.tracks.map((track) =>
               sortNoteTimes(track, transposeOct)
             );
+            const _orderedTracks = midi.tracks.map(orderNotes);
+            console.log({ _orderedTracks });
+            setOrderedTracks(_orderedTracks);
             setAllTracks(_allTracks);
             const _jsxObj = JSON.stringify(track1);
             setJsxObj(_jsxObj);
@@ -63,38 +72,44 @@ const MidiPage: React.FC = ({}) => {
           transposeOct={transposeOct}
         />
       </div>
-      <div>
-        {allTracks?.map((track, i) => {
-          const notes = Object.values(track.notes);
-          const noteCount = notes.flatMap((n) => [...n]).length;
+      {Object.entries({ orderedTracks, allTracks }).map(
+        ([name, file], fileIndex) => {
           return (
-            <div
-              key={i}
-              className="border-2 border-blue-400 m-4 grid grid-cols-3"
-            >
-              <div>
-                <div className=" text-xl ">{track.trackName}</div>
-                <div className="text-gray-500">{noteCount} notes</div>
-              </div>
-              <div className="flex justify-center align-middle p-4">
-                <div className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                  <DownloadLink
-                    tagName="button"
-                    label={
-                      <div className="text-white">save {track.trackName}</div>
-                    }
-                    exportFile={() => JSON.stringify(track)}
-                    filename={`${track.trackName}.json`}
-                  />
-                </div>
-              </div>
-              <div>
-                <JTREE data={track} shouldExpandNode={() => false} />
-              </div>
+            <div key={fileIndex}>
+              {file?.length && <h3 className="text-xl text-center">{name}</h3>}
+              {file?.map((track, i) => {
+                return (
+                  <div
+                    key={i}
+                    className="border-2 border-blue-400 m-4 grid grid-cols-3"
+                  >
+                    <div>
+                      <div className=" text-xl ">{track.trackName}</div>
+                    </div>
+                    <div className="flex justify-center align-middle p-4">
+                      <div className="inline-flex items-center px-4 py-2 my-auto border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <DownloadLink
+                          tagName="button"
+                          label={
+                            <div className="text-white">
+                              save {track.trackName}
+                            </div>
+                          }
+                          exportFile={() => JSON.stringify(track)}
+                          filename={`${track.trackName}.json`}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <JTREE data={track} shouldExpandNode={() => false} />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           );
-        })}
-      </div>
+        }
+      )}
       {/* <JTREE data={allTracks} /> */}
       {/* {tracksJson && (
         <DownloadLink

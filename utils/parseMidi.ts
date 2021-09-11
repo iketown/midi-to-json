@@ -12,6 +12,11 @@ export type TimeObj = {
   };
 };
 
+export type OrderedTimeObj = {
+  trackName: string;
+  notes: { name: string; start: number; end: number; velocity: number }[];
+};
+
 export const sortNoteTimes = (track: Track, transposeOct = 0) => {
   const { name: trackName } = track;
   const timeObj: TimeObj = {
@@ -43,5 +48,14 @@ export const sortNoteTimes = (track: Track, transposeOct = 0) => {
   return timeObj;
 };
 
+export const orderNotes = (track: Track) => {
+  const { name: trackName } = track;
+  const notes = track.notes.map(({ name, time, velocity, duration }) => {
+    const timeRound = Number(time.toFixed(2));
+    const end = Number((time + duration).toFixed(2));
+    return { name, start: timeRound, end, velocity };
+  });
+  return { trackName, notes };
+};
 // a note can query the js obj and say
 // I am "C2", and its 2.5 sec.  am i on or off
